@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Tug of War: Mathematics — TIS AO</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Tis-logo.png">
+  
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════ ECRÃ SETUP ═══════════════════ -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-wrap">
+
+    <div class="setup-logo-row">
+      <div class="setup-logo-badge">TIS</div>
+      <h1 class="setup-main-title">TUG OF WAR: MATHEMATICS</h1>
+    </div>
+
+    <div class="setup-cards">
+
+      <div class="setup-card">
+        <h3>🏷️ Nomes das Equipas</h3>
+        <div class="sfield">
+          <label>Equipa 1 (Esquerda — Azul)</label>
+          <input id="inp-t1" type="text" value="Team 1" maxlength="14"/>
+        </div>
+        <div class="sfield">
+          <label>Equipa 2 (Direita — Vermelho)</label>
+          <input id="inp-t2" type="text" value="Team 2" maxlength="14"/>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <h3>➗ Operação</h3>
+        <div class="sopt-group" id="grp-op">
+          <button class="sopt active" data-v="add">➕ Soma</button>
+          <button class="sopt" data-v="sub">➖ Subtração</button>
+          <button class="sopt" data-v="mul">✖️ Multiplicação</button>
+          <button class="sopt" data-v="div">➗ Divisão</button>
+          <button class="sopt" data-v="mix">🔀 Misto</button>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <h3>👶 Faixa Etária</h3>
+        <div class="sopt-group" id="grp-age">
+          <button class="sopt active" data-v="5-7">🧒 5–7 anos</button>
+          <button class="sopt" data-v="8-10">👦 8–10 anos</button>
+          <button class="sopt" data-v="11-14">🧑 11–14 anos</button>
+          <button class="sopt" data-v="custom">⚙️ Custom</button>
+        </div>
+        <div id="custom-box" style="display:none;margin-top:10px;">
+          <label style="font-size:12px;color:#555;">Valor máximo:</label>
+          <input id="inp-cmax" type="number" value="50" min="5" max="999"
+            style="width:70px;margin-left:8px;padding:5px 8px;border-radius:8px;
+                   border:2px solid #0057FF;font-size:16px;text-align:center;"/>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <h3>⏱️ Tempo Total (seg)</h3>
+        <div class="sopt-group" id="grp-time">
+          <button class="sopt" data-v="60">60s</button>
+          <button class="sopt active" data-v="120">2 min</button>
+          <button class="sopt" data-v="180">3 min</button>
+          <button class="sopt" data-v="300">5 min</button>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <h3>🏆 Pontos para Vencer</h3>
+        <div class="sopt-group" id="grp-win">
+          <button class="sopt" data-v="3">3 pts</button>
+          <button class="sopt active" data-v="5">5 pts</button>
+          <button class="sopt" data-v="7">7 pts</button>
+          <button class="sopt" data-v="10">10 pts</button>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="btn-play" id="btn-play">▶ JOGAR</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ ECRÃ DE JOGO ═══════════════════ -->
+<div id="screen-game" class="screen">
+
+  <!-- CABEÇALHO -->
+  <div class="game-header">
+    <button class="btn-home" id="btn-home">🏠 Início</button>
+    <h1 class="game-title">TUG OF WAR: MATHEMATICS</h1>
+    <div class="header-spacer"></div>
+  </div>
+
+  <!-- CORPO PRINCIPAL: 3 colunas -->
+  <div class="game-body">
+
+    <!-- ── COLUNA ESQUERDA — TEAM 1 ── -->
+    <div class="team-col col-left" id="col-t1">
+
+      <div class="team-badge badge-blue" id="badge-t1">
+        <span class="badge-name" id="bname-t1">Team 1</span>
+        <span class="badge-score" id="bscore-t1">0</span>
+      </div>
+
+      <div class="question-area" id="qa-t1">
+        <span class="question-text" id="qt1">5 + 10 = ?</span>
+      </div>
+
+      <div class="answer-box" id="ab-t1">
+        <span id="ad-t1"> </span>
+      </div>
+
+      <div class="numpad" id="np1">
+        <button class="np" data-t="1" data-v="1">1</button>
+        <button class="np" data-t="1" data-v="2">2</button>
+        <button class="np" data-t="1" data-v="3">3</button>
+        <button class="np" data-t="1" data-v="4">4</button>
+        <button class="np" data-t="1" data-v="5">5</button>
+        <button class="np" data-t="1" data-v="6">6</button>
+        <button class="np" data-t="1" data-v="7">7</button>
+        <button class="np" data-t="1" data-v="8">8</button>
+        <button class="np" data-t="1" data-v="9">9</button>
+        <button class="np np-del" data-t="1" data-v="del">✕</button>
+        <button class="np" data-t="1" data-v="0">0</button>
+        <button class="np np-ok" data-t="1" data-v="ok">✔</button>
+      </div>
+
+    </div>
+
+
+    <!-- ── COLUNA CENTRAL — ARENA ── -->
+    <div class="arena-col" id="arena-col">
+
+      <div class="scoreboard">
+        <div class="sb-team" id="sb-t1">
+          <div class="sb-name" id="sb-name1">Team 1</div>
+          <div class="sb-val blue" id="sb-val1">0</div>
+        </div>
+        <div class="sb-timer">
+          <div class="timer-icon">🕐</div>
+          <div class="timer-val" id="timer-val">02:00</div>
+        </div>
+        <div class="sb-team" id="sb-t2">
+          <div class="sb-name" id="sb-name2">Team 2</div>
+          <div class="sb-val red" id="sb-val2">0</div>
+        </div>
+      </div>
+
+      <!-- Arena da corda — SVG dinâmico completo -->
+      <div class="arena-visual" id="arena-visual">
+        <svg id="arena-svg" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <!-- Gradiente corda -->
+            <linearGradient id="ropeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%"   stop-color="#C8963E"/>
+              <stop offset="30%"  stop-color="#8B6010"/>
+              <stop offset="60%"  stop-color="#D4A84B"/>
+              <stop offset="100%" stop-color="#6B4A0E"/>
+            </linearGradient>
+            <linearGradient id="ropeHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%"   stop-color="rgba(255,220,120,0.6)"/>
+              <stop offset="100%" stop-color="rgba(255,220,120,0)"/>
+            </linearGradient>
+            <!-- Sombra corda -->
+            <filter id="ropeShadow" x="-5%" y="-20%" width="110%" height="200%">
+              <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.35)"/>
+            </filter>
+            <!-- Pele personagens -->
+            <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FDBCB4"/>
+              <stop offset="100%" stop-color="#E8967A"/>
+            </linearGradient>
+            <!-- Uniforme azul -->
+            <linearGradient id="blueUniform" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#4A8CFF"/>
+              <stop offset="100%" stop-color="#0057FF"/>
+            </linearGradient>
+            <!-- Uniforme vermelho -->
+            <linearGradient id="redUniform" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF5252"/>
+              <stop offset="100%" stop-color="#B71C1C"/>
+            </linearGradient>
+            <!-- Gradiente chão -->
+            <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#C8E6C9"/>
+              <stop offset="100%" stop-color="#A5D6A7"/>
+            </linearGradient>
+            <!-- Pele escura para cabelo preto -->
+            <radialGradient id="hairGrad" cx="50%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#3a2010"/>
+              <stop offset="100%" stop-color="#1a0a04"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Chão com textura -->
+          <rect x="0" y="185" width="700" height="35" fill="url(#groundGrad)" rx="0"/>
+          <line x1="0" y1="185" x2="700" y2="185" stroke="#81C784" stroke-width="2"/>
+          <!-- Listras do chão (grama) -->
+          <g opacity="0.3">
+            <line x1="30" y1="185" x2="30" y2="195" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="60" y1="185" x2="55" y2="197" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="90" y1="185" x2="93" y2="196" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="200" y1="185" x2="198" y2="196" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="350" y1="185" x2="350" y2="196" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="500" y1="185" x2="502" y2="196" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="620" y1="185" x2="618" y2="196" stroke="#4CAF50" stroke-width="1.5"/>
+            <line x1="660" y1="185" x2="662" y2="196" stroke="#4CAF50" stroke-width="1.5"/>
+          </g>
+
+          <!-- Linha central tracejada -->
+          <line id="center-line" x1="350" y1="30" x2="350" y2="185" stroke="#4A8CFF" stroke-width="2.5" stroke-dasharray="10,8" opacity="0.55"/>
+
+          <!-- CORDA — desenhada como caminho entre os grupos -->
+          <!-- Sombra da corda -->
+          <path id="rope-shadow" d="M 168,108 Q 350,130 532,108" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="10" stroke-linecap="round"/>
+          <!-- Corda principal -->
+          <path id="rope-main" d="M 168,108 Q 350,130 532,108" fill="none" stroke="url(#ropeGrad)" stroke-width="13" stroke-linecap="round" filter="url(#ropeShadow)"/>
+          <!-- Detalhe trançado superior -->
+          <path id="rope-highlight" d="M 168,103 Q 350,125 532,103" fill="none" stroke="url(#ropeHighlight)" stroke-width="4" stroke-linecap="round"/>
+          <!-- Torções da corda (linhas diagonais decorativas) -->
+          <g id="rope-twists" opacity="0.4">
+            <path d="M 200,110 Q 205,106 210,110" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 220,112 Q 225,107 230,112" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 240,113 Q 245,109 250,113" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 270,114 Q 275,110 280,114" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 300,115 Q 305,111 310,115" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 330,115 Q 335,111 340,115" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 360,115 Q 365,111 370,115" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 390,114 Q 395,110 400,114" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 420,113 Q 425,109 430,113" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 450,112 Q 455,108 460,112" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 480,111 Q 485,107 490,111" fill="none" stroke="#8B6010" stroke-width="2"/>
+            <path d="M 510,110 Q 515,106 520,110" fill="none" stroke="#8B6010" stroke-width="2"/>
+          </g>
+          <!-- MARCA VERMELHA no centro da corda -->
+          <g id="rope-flag">
+            <rect id="flag-rect" x="343" y="97" width="14" height="22" rx="2" fill="#E53935" stroke="white" stroke-width="1.5"/>
+            <rect id="flag-rect2" x="346" y="100" width="8" height="16" rx="1" fill="white" opacity="0.3"/>
+          </g>
+
+          <!-- ═══════════════════════════════
+               TEAM 1 — 2 PERSONAGENS AZUIS
+               Posição: puxando para a esquerda
+          ═══════════════════════════════ -->
+
+          <!-- PERSONAGEM 1A (frente, esquerda) — mais próximo da corda -->
+          <g id="char-1a" class="char-group char-blue-group">
+            <!-- Sombra pé -->
+            <ellipse cx="130" cy="188" rx="22" ry="5" fill="rgba(0,0,0,0.12)"/>
+            <!-- Perna traseira direita -->
+            <g id="leg-1a-r" class="leg-pull">
+              <rect x="118" y="148" width="13" height="38" rx="6" fill="#1a1a2e" transform="rotate(-8,124,148)"/>
+              <!-- Sapato direito -->
+              <ellipse cx="121" cy="186" rx="13" ry="7" fill="#4A8CFF" transform="rotate(-5,121,186)"/>
+              <ellipse cx="126" cy="184" rx="8" ry="5" fill="#5B9DFF" transform="rotate(-5,126,184)"/>
+            </g>
+            <!-- Perna esquerda na frente -->
+            <g id="leg-1a-l" class="leg-push">
+              <rect x="131" y="148" width="13" height="36" rx="6" fill="#1a1a2e" transform="rotate(10,137,148)"/>
+              <!-- Sapato esquerdo -->
+              <ellipse cx="140" cy="184" rx="14" ry="7" fill="#4A8CFF" transform="rotate(8,140,184)"/>
+              <ellipse cx="146" cy="182" rx="9" ry="5" fill="#5B9DFF" transform="rotate(8,146,182)"/>
+            </g>
+            <!-- Corpo (tronco inclinado) -->
+            <g id="torso-1a" transform="rotate(-12, 130, 115)">
+              <rect x="112" y="95" width="36" height="55" rx="10" fill="url(#blueUniform)"/>
+              <!-- Logo TIS no peito -->
+              <rect x="122" y="102" width="16" height="16" rx="3" fill="white"/>
+              <text x="130" y="114" text-anchor="middle" font-family="Arial" font-weight="900" font-size="8" fill="#0057FF">TIS</text>
+              <!-- Detalhes uniforme -->
+              <line x1="130" y1="95" x2="130" y2="150" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+              <rect x="112" y="95" width="36" height="8" rx="4" fill="white" opacity="0.15"/>
+            </g>
+            <!-- Braço direito (puxando corda) — esticado para cima/direita -->
+            <g id="arm-1a-r" class="arm-pull">
+              <line x1="148" y1="112" x2="168" y2="103" stroke="url(#blueUniform)" stroke-width="12" stroke-linecap="round"/>
+              <!-- Mão -->
+              <circle cx="168" cy="103" r="7" fill="url(#skinGrad)"/>
+              <line x1="164" y1="100" x2="172" y2="100" stroke="#c47a5a" stroke-width="1.5" opacity="0.5"/>
+            </g>
+            <!-- Braço esquerdo (dobrado, trazendo força) -->
+            <g id="arm-1a-l" class="arm-push">
+              <line x1="112" y1="112" x2="97" y2="122" stroke="url(#blueUniform)" stroke-width="12" stroke-linecap="round"/>
+              <circle cx="97" cy="122" r="7" fill="url(#skinGrad)"/>
+            </g>
+            <!-- Cabeça -->
+            <circle cx="130" cy="80" r="17" fill="url(#skinGrad)"/>
+            <!-- Cabelo -->
+            <ellipse cx="130" cy="67" rx="17" ry="11" fill="url(#hairGrad)"/>
+            <rect x="113" y="67" width="34" height="8" fill="url(#hairGrad)"/>
+            <!-- Fita branca na cabeça -->
+            <rect x="114" y="73" width="32" height="6" rx="3" fill="white" opacity="0.9"/>
+            <rect x="114" y="73" width="32" height="3" rx="2" fill="#4A8CFF" opacity="0.5"/>
+            <!-- Olho esquerdo -->
+            <circle cx="124" cy="80" r="3.5" fill="white"/>
+            <circle cx="125" cy="80" r="2" fill="#1a1a2e"/>
+            <!-- Olho direito -->
+            <circle cx="136" cy="80" r="3.5" fill="white"/>
+            <circle cx="137" cy="80" r="2" fill="#1a1a2e"/>
+            <!-- Sorriso esforço -->
+            <path d="M 124,88 Q 130,93 136,88" fill="none" stroke="#c47a5a" stroke-width="2" stroke-linecap="round"/>
+            <!-- Sobrancelha tensão -->
+            <line x1="122" y1="74" x2="128" y2="76" stroke="#4a2010" stroke-width="2" stroke-linecap="round"/>
+            <line x1="132" y1="76" x2="138" y2="74" stroke="#4a2010" stroke-width="2" stroke-linecap="round"/>
+          </g>
+
+          <!-- PERSONAGEM 1B (atrás, esquerda) — segundo puxador, ligeiramente atrás -->
+          <g id="char-1b" class="char-group char-blue-group" opacity="0.9">
+            <ellipse cx="88" cy="188" rx="20" ry="5" fill="rgba(0,0,0,0.1)"/>
+            <!-- Pernas -->
+            <g class="leg-pull">
+              <rect x="77" y="148" width="12" height="38" rx="6" fill="#1a1a2e" transform="rotate(-10,83,148)"/>
+              <ellipse cx="79" cy="187" rx="12" ry="6" fill="#4A8CFF" transform="rotate(-6,79,187)"/>
+            </g>
+            <g class="leg-push">
+              <rect x="90" y="148" width="12" height="36" rx="6" fill="#1a1a2e" transform="rotate(8,96,148)"/>
+              <ellipse cx="98" cy="184" rx="13" ry="6" fill="#4A8CFF" transform="rotate(6,98,184)"/>
+            </g>
+            <!-- Corpo -->
+            <g transform="rotate(-14, 88, 113)">
+              <rect x="72" y="94" width="32" height="52" rx="9" fill="url(#blueUniform)"/>
+              <rect x="80" y="100" width="14" height="14" rx="3" fill="white"/>
+              <text x="87" y="111" text-anchor="middle" font-family="Arial" font-weight="900" font-size="7" fill="#0057FF">TIS</text>
+              <line x1="88" y1="94" x2="88" y2="146" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+            </g>
+            <!-- Braço direito puxando a corda (conecta ao personagem 1a) -->
+            <g class="arm-pull">
+              <line x1="104" y1="110" x2="120" y2="105" stroke="url(#blueUniform)" stroke-width="11" stroke-linecap="round"/>
+              <circle cx="120" cy="105" r="6" fill="url(#skinGrad)"/>
+            </g>
+            <!-- Braço esquerdo -->
+            <g class="arm-push">
+              <line x1="72" y1="110" x2="59" y2="119" stroke="url(#blueUniform)" stroke-width="11" stroke-linecap="round"/>
+              <circle cx="59" cy="119" r="6" fill="url(#skinGrad)"/>
+            </g>
+            <!-- Cabeça 1B -->
+            <circle cx="88" cy="79" r="15" fill="url(#skinGrad)"/>
+            <ellipse cx="88" cy="67" rx="15" ry="10" fill="url(#hairGrad)"/>
+            <rect x="73" y="67" width="30" height="7" fill="url(#hairGrad)"/>
+            <rect x="74" y="73" width="28" height="5" rx="2.5" fill="white" opacity="0.9"/>
+            <rect x="74" y="73" width="28" height="3" rx="2" fill="#4A8CFF" opacity="0.5"/>
+            <circle cx="83" cy="79" r="3" fill="white"/>
+            <circle cx="84" cy="79" r="1.8" fill="#1a1a2e"/>
+            <circle cx="93" cy="79" r="3" fill="white"/>
+            <circle cx="94" cy="79" r="1.8" fill="#1a1a2e"/>
+            <path d="M 82,87 Q 88,91 94,87" fill="none" stroke="#c47a5a" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="80" y1="73" x2="86" y2="75" stroke="#4a2010" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="90" y1="75" x2="96" y2="73" stroke="#4a2010" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+
+          <!-- ═══════════════════════════════
+               TEAM 2 — 2 PERSONAGENS VERMELHOS
+               Posição: puxando para a direita
+          ═══════════════════════════════ -->
+
+          <!-- PERSONAGEM 2A (frente, direita) — espelhado -->
+          <g id="char-2a" class="char-group char-red-group">
+            <ellipse cx="570" cy="188" rx="22" ry="5" fill="rgba(0,0,0,0.12)"/>
+            <!-- Perna traseira esquerda -->
+            <g class="leg-pull">
+              <rect x="569" y="148" width="13" height="38" rx="6" fill="#1a1a2e" transform="rotate(8,575,148)"/>
+              <ellipse cx="579" cy="186" rx="13" ry="7" fill="#E53935" transform="rotate(5,579,186)"/>
+              <ellipse cx="574" cy="184" rx="8" ry="5" fill="#FF6B6B" transform="rotate(5,574,184)"/>
+            </g>
+            <!-- Perna direita frente -->
+            <g class="leg-push">
+              <rect x="556" y="148" width="13" height="36" rx="6" fill="#1a1a2e" transform="rotate(-10,562,148)"/>
+              <ellipse cx="554" cy="184" rx="14" ry="7" fill="#E53935" transform="rotate(-8,554,184)"/>
+              <ellipse cx="548" cy="182" rx="9" ry="5" fill="#FF6B6B" transform="rotate(-8,548,182)"/>
+            </g>
+            <!-- Corpo -->
+            <g id="torso-2a" transform="rotate(12, 570, 115)">
+              <rect x="552" y="95" width="36" height="55" rx="10" fill="url(#redUniform)"/>
+              <rect x="562" y="102" width="16" height="16" rx="3" fill="white"/>
+              <text x="570" y="114" text-anchor="middle" font-family="Arial" font-weight="900" font-size="8" fill="#E53935">TIS</text>
+              <line x1="570" y1="95" x2="570" y2="150" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+              <rect x="552" y="95" width="36" height="8" rx="4" fill="white" opacity="0.15"/>
+            </g>
+            <!-- Braço esquerdo (puxando corda) -->
+            <g class="arm-pull">
+              <line x1="552" y1="112" x2="532" y2="103" stroke="url(#redUniform)" stroke-width="12" stroke-linecap="round"/>
+              <circle cx="532" cy="103" r="7" fill="url(#skinGrad)"/>
+              <line x1="528" y1="100" x2="536" y2="100" stroke="#c47a5a" stroke-width="1.5" opacity="0.5"/>
+            </g>
+            <!-- Braço direito dobrado -->
+            <g class="arm-push">
+              <line x1="588" y1="112" x2="603" y2="122" stroke="url(#redUniform)" stroke-width="12" stroke-linecap="round"/>
+              <circle cx="603" cy="122" r="7" fill="url(#skinGrad)"/>
+            </g>
+            <!-- Cabeça -->
+            <circle cx="570" cy="80" r="17" fill="url(#skinGrad)"/>
+            <ellipse cx="570" cy="67" rx="17" ry="11" fill="url(#hairGrad)"/>
+            <rect x="553" y="67" width="34" height="8" fill="url(#hairGrad)"/>
+            <rect x="554" y="73" width="32" height="6" rx="3" fill="white" opacity="0.9"/>
+            <rect x="554" y="73" width="32" height="3" rx="2" fill="#E53935" opacity="0.5"/>
+            <circle cx="564" cy="80" r="3.5" fill="white"/>
+            <circle cx="565" cy="80" r="2" fill="#1a1a2e"/>
+            <circle cx="576" cy="80" r="3.5" fill="white"/>
+            <circle cx="577" cy="80" r="2" fill="#1a1a2e"/>
+            <path d="M 564,88 Q 570,93 576,88" fill="none" stroke="#c47a5a" stroke-width="2" stroke-linecap="round"/>
+            <line x1="562" y1="74" x2="568" y2="76" stroke="#4a2010" stroke-width="2" stroke-linecap="round"/>
+            <line x1="572" y1="76" x2="578" y2="74" stroke="#4a2010" stroke-width="2" stroke-linecap="round"/>
+          </g>
+
+          <!-- PERSONAGEM 2B (atrás, direita) -->
+          <g id="char-2b" class="char-group char-red-group" opacity="0.9">
+            <ellipse cx="612" cy="188" rx="20" ry="5" fill="rgba(0,0,0,0.1)"/>
+            <g class="leg-pull">
+              <rect x="611" y="148" width="12" height="38" rx="6" fill="#1a1a2e" transform="rotate(10,617,148)"/>
+              <ellipse cx="621" cy="187" rx="12" ry="6" fill="#E53935" transform="rotate(6,621,187)"/>
+            </g>
+            <g class="leg-push">
+              <rect x="598" y="148" width="12" height="36" rx="6" fill="#1a1a2e" transform="rotate(-8,604,148)"/>
+              <ellipse cx="602" cy="184" rx="13" ry="6" fill="#E53935" transform="rotate(-6,602,184)"/>
+            </g>
+            <!-- Corpo -->
+            <g transform="rotate(14, 612, 113)">
+              <rect x="596" y="94" width="32" height="52" rx="9" fill="url(#redUniform)"/>
+              <rect x="606" y="100" width="14" height="14" rx="3" fill="white"/>
+              <text x="613" y="111" text-anchor="middle" font-family="Arial" font-weight="900" font-size="7" fill="#E53935">TIS</text>
+              <line x1="612" y1="94" x2="612" y2="146" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+            </g>
+            <!-- Braço esquerdo puxando -->
+            <g class="arm-pull">
+              <line x1="596" y1="110" x2="580" y2="105" stroke="url(#redUniform)" stroke-width="11" stroke-linecap="round"/>
+              <circle cx="580" cy="105" r="6" fill="url(#skinGrad)"/>
+            </g>
+            <!-- Braço direito -->
+            <g class="arm-push">
+              <line x1="628" y1="110" x2="641" y2="119" stroke="url(#redUniform)" stroke-width="11" stroke-linecap="round"/>
+              <circle cx="641" cy="119" r="6" fill="url(#skinGrad)"/>
+            </g>
+            <!-- Cabeça -->
+            <circle cx="612" cy="79" r="15" fill="url(#skinGrad)"/>
+            <ellipse cx="612" cy="67" rx="15" ry="10" fill="url(#hairGrad)"/>
+            <rect x="597" y="67" width="30" height="7" fill="url(#hairGrad)"/>
+            <rect x="598" y="73" width="28" height="5" rx="2.5" fill="white" opacity="0.9"/>
+            <rect x="598" y="73" width="28" height="3" rx="2" fill="#E53935" opacity="0.5"/>
+            <circle cx="607" cy="79" r="3" fill="white"/>
+            <circle cx="608" cy="79" r="1.8" fill="#1a1a2e"/>
+            <circle cx="617" cy="79" r="3" fill="white"/>
+            <circle cx="618" cy="79" r="1.8" fill="#1a1a2e"/>
+            <path d="M 606,87 Q 612,91 618,87" fill="none" stroke="#c47a5a" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="604" y1="73" x2="610" y2="75" stroke="#4a2010" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="614" y1="75" x2="620" y2="73" stroke="#4a2010" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+
+        </svg>
+      </div>
+
+      <!-- Barra de progresso -->
+      <div class="rope-progress">
+        <div class="rp-track">
+          <div class="rp-blue" id="rp-blue"></div>
+          <div class="rp-center"></div>
+          <div class="rp-red" id="rp-red"></div>
+        </div>
+      </div>
+
+      <!-- Botões inferiores -->
+      <div class="arena-btns">
+        <button class="arena-btn" id="btn-settings" title="Configurações">⚙️</button>
+        <button class="arena-btn" id="btn-sound" title="Som">🔊</button>
+      </div>
+
+    </div>
+
+
+    <!-- ── COLUNA DIREITA — TEAM 2 ── -->
+    <div class="team-col col-right" id="col-t2">
+
+      <div class="team-badge badge-red" id="badge-t2">
+        <span class="badge-name" id="bname-t2">Team 2</span>
+        <span class="badge-score" id="bscore-t2">0</span>
+      </div>
+
+      <div class="question-area" id="qa-t2">
+        <span class="question-text red-q" id="qt2">6 + 8 = ?</span>
+      </div>
+
+      <div class="answer-box answer-box-red" id="ab-t2">
+        <span id="ad-t2"> </span>
+      </div>
+
+      <div class="numpad" id="np2">
+        <button class="np" data-t="2" data-v="1">1</button>
+        <button class="np" data-t="2" data-v="2">2</button>
+        <button class="np" data-t="2" data-v="3">3</button>
+        <button class="np" data-t="2" data-v="4">4</button>
+        <button class="np" data-t="2" data-v="5">5</button>
+        <button class="np" data-t="2" data-v="6">6</button>
+        <button class="np" data-t="2" data-v="7">7</button>
+        <button class="np" data-t="2" data-v="8">8</button>
+        <button class="np" data-t="2" data-v="9">9</button>
+        <button class="np np-del" data-t="2" data-v="del">✕</button>
+        <button class="np" data-t="2" data-v="0">0</button>
+        <button class="np np-ok" data-t="2" data-v="ok">✔</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════ ECRÃ VITÓRIA ═══════════════════ -->
+<div id="screen-victory" class="screen">
+  <div class="victory-wrap">
+    <div class="victory-trophy">🏆</div>
+    <h1 class="victory-title" id="v-title">Team 1 Venceu!</h1>
+    <p class="victory-sub" id="v-sub">Parabéns! Excelente trabalho em equipa!</p>
+
+    <div class="victory-score" id="v-score">
+      <div class="vs-box blue-box">
+        <div class="vs-val" id="vs-v1">0</div>
+        <div class="vs-lbl" id="vs-n1">Team 1</div>
+      </div>
+      <div class="vs-sep">VS</div>
+      <div class="vs-box red-box">
+        <div class="vs-val" id="vs-v2">0</div>
+        <div class="vs-lbl" id="vs-n2">Team 2</div>
+      </div>
+    </div>
+
+    <div class="victory-btns">
+      <button class="vbtn vbtn-blue" id="vbtn-again">🔄 Jogar Novamente</button>
+      <button class="vbtn vbtn-outline" id="vbtn-config">⚙️ Nova Configuração</button>
+    </div>
+
+    <div class="ranking-box">
+      <h3>📊 Ranking</h3>
+      <div id="rank-list"></div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
